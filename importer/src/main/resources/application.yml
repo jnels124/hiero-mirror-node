@@ -5,7 +5,7 @@ hiero:
     importer:
       db:
         connectionInitSql: set timezone TO 'UTC';
-        host: 127.0.0.1
+        host: mirror-citus-coord-primary
         loadBalance: true
         name: mirror_node
         owner: mirror_node
