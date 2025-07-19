@@ -13,6 +13,7 @@ import static org.hiero.mirror.common.util.DomainUtils.createSha384Digest;
 import static org.hiero.mirror.common.util.DomainUtils.fromBytes;
 import static org.hiero.mirror.common.util.DomainUtils.toBytes;
 
+import com.google.common.collect.Lists;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
@@ -849,11 +850,15 @@ public class RecordItemBuilder {
         });
     }
 
+    public void clearState() {
+        state.clear();
+    }
+
     public void reset() {
         entityId.set(INITIAL_ID);
         id.set(0L);
         now = Instant.now();
-        state.clear();
+        clearState();
     }
 
     public Builder<ScheduleCreateTransactionBody.Builder> scheduleCreate() {
@@ -1258,7 +1263,7 @@ public class RecordItemBuilder {
         return accountAmount(accountId.toAccountID(), amount);
     }
 
-    private AccountAmount accountAmount(AccountID accountID, long amount) {
+    private static AccountAmount accountAmount(AccountID accountID, long amount) {
         return AccountAmount.newBuilder()
                 .setAccountID(accountID)
                 .setAmount(amount)
@@ -1459,9 +1464,9 @@ public class RecordItemBuilder {
         private final TransactionBody.Builder transactionBodyWrapper;
         private final TransactionRecord.Builder transactionRecord;
         private final List<TransactionSidecarRecord.Builder> sidecarRecords;
-        private final AccountID payerAccountId;
         private final RecordItem.RecordItemBuilder recordItemBuilder;
 
+        private AccountID payerAccountId;
         private Predicate<EntityId> entityTransactionPredicate = persistProperties::shouldPersistEntityTransaction;
         private Predicate<EntityId> contractTransactionPredicate = e -> persistProperties.isContractTransaction();
         private BiConsumer<TransactionBody.Builder, TransactionRecord.Builder> incrementer = (b, r) -> {};
@@ -1552,6 +1557,29 @@ public class RecordItemBuilder {
             return this;
         }
 
+        public Builder<T> payerAccountId(AccountID payerAccountId) {
+            if (payerAccountId.equals(this.payerAccountId)) {
+                return this;
+            }
+
+            var accountAmounts =
+                    Lists.newArrayList(transactionRecord.getTransferList().getAccountAmountsList());
+            var iter = accountAmounts.listIterator();
+            while (iter.hasNext()) {
+                var accountAmount = iter.next();
+                if (accountAmount.getAccountID().equals(this.payerAccountId) && accountAmount.getAmount() == -6000L) {
+                    iter.set(accountAmount.toBuilder()
+                            .setAccountID(payerAccountId)
+                            .build());
+                    transactionRecord.setTransferList(TransferList.newBuilder().addAllAccountAmounts(accountAmounts));
+                    break;
+                }
+            }
+
+            this.payerAccountId = payerAccountId;
+            return this;
+        }
+
         public Builder<T> receipt(Consumer<TransactionReceipt.Builder> consumer) {
             consumer.accept(transactionRecord.getReceiptBuilder());
             return this;
@@ -1616,6 +1644,7 @@ public class RecordItemBuilder {
             var transactionRecordBuilder = TransactionRecord.newBuilder()
                     .setMemoBytes(ByteString.copyFromUtf8(transactionBodyWrapper.getMemo()))
                     .setTransactionFee(transactionBodyWrapper.getTransactionFee())
+                    .setTransactionHash(bytes(48))
                     .setTransferList(TransferList.newBuilder()
                             .addAccountAmounts(accountAmount(payerAccountId, -6000L))
                             .addAccountAmounts(accountAmount(nodeAccountId, 1000L))

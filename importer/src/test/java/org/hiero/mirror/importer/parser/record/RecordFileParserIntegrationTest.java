@@ -47,10 +47,9 @@ class RecordFileParserIntegrationTest extends ImporterIntegrationTest {
     void parse() {
         // given
         int transactions = 100;
-        int entities = 50;
-        var recordFileTemplate = recordFileBuilder
-                .recordFile()
-                .recordItems(i -> i.count(transactions).entities(entities).type(TransactionType.CRYPTOTRANSFER));
+        //        int entities = 50;
+        var recordFileTemplate = recordFileBuilder.recordFile().recordItems(i -> i.count(transactions)
+                .type(TransactionType.CRYPTOTRANSFER));
         var recordFile1 = recordFileTemplate.build();
         var recordFile2 = recordFileTemplate.build();
 
@@ -69,10 +68,9 @@ class RecordFileParserIntegrationTest extends ImporterIntegrationTest {
     void parseList() {
         // given
         int transactions = 100;
-        int entities = 50;
-        var recordFileTemplate = recordFileBuilder
-                .recordFile()
-                .recordItems(i -> i.count(transactions).entities(entities).type(TransactionType.CRYPTOTRANSFER));
+        //        int entities = 50;
+        var recordFileTemplate = recordFileBuilder.recordFile().recordItems(i -> i.count(transactions)
+                .type(TransactionType.CRYPTOTRANSFER));
         var recordFile1 = recordFileTemplate.build();
         var recordFile2 = recordFileTemplate.build();
 
@@ -89,10 +87,9 @@ class RecordFileParserIntegrationTest extends ImporterIntegrationTest {
     void parseSingleThenList() {
         // given
         int transactions = 100;
-        int entities = 50;
-        var recordFileTemplate = recordFileBuilder
-                .recordFile()
-                .recordItems(i -> i.count(transactions).entities(entities).type(TransactionType.CRYPTOTRANSFER));
+        //        int entities = 50;
+        var recordFileTemplate = recordFileBuilder.recordFile().recordItems(i -> i.count(transactions)
+                .type(TransactionType.CRYPTOTRANSFER));
         var recordFile1 = recordFileTemplate.build();
         var recordFile2 = recordFileTemplate.build();
         var recordFile3 = recordFileTemplate.build();
@@ -118,7 +115,7 @@ class RecordFileParserIntegrationTest extends ImporterIntegrationTest {
                 .getTopicID());
         var recordFile = recordFileBuilder
                 .recordFile()
-                .recordItems(i -> i.count(count).template(() -> topicMessage))
+                .recordItems(i -> i.count(count).template((r) -> topicMessage))
                 .build();
 
         var receive = reactiveRedisOperations

@@ -25,4 +25,6 @@ public interface EntityRepository extends CrudRepository<Entity, Long> {
     @Modifying
     @Query(value = "update entity set type = 'CONTRACT' where id in (:ids) and type <> 'CONTRACT'", nativeQuery = true)
     int updateContractType(Iterable<Long> ids);
+
+    Optional<Entity> findTopByOrderByIdDesc();
 }

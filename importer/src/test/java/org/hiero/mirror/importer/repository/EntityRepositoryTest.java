@@ -144,4 +144,13 @@ class EntityRepositoryTest extends ImporterIntegrationTest {
                     assertThat(e.getEvmAddress()).isEqualTo(entity2.getEvmAddress());
                 });
     }
+
+    @Test
+    void findTopByOrderByIdDesc() {
+        assertThat(entityRepository.findTopByOrderByIdDesc()).isEmpty();
+
+        domainBuilder.entity().persist();
+        var last = domainBuilder.entity().persist();
+        assertThat(entityRepository.findTopByOrderByIdDesc()).contains(last);
+    }
 }

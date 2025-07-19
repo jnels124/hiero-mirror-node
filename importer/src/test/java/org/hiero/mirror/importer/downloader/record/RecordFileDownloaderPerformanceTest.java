@@ -96,7 +96,7 @@ class RecordFileDownloaderPerformanceTest extends ImporterIntegrationTest {
             scenario.getTransactions().forEach(p -> {
                 int count = (int) (p.getTps() * interval / 1000);
                 builder.recordItems(i -> i.count(count)
-                        .entities(p.getEntities())
+                        //                        .entities(p.getEntities())
                         .entityAutoCreation(true)
                         .subType(p.getSubType())
                         .type(p.getType()));
