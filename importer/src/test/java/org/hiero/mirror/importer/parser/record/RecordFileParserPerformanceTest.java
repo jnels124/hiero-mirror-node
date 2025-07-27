@@ -115,7 +115,7 @@ class RecordFileParserPerformanceTest {
                     .record(r -> r.mergeTransferList(transferList));
         };
 
-        long numCreatedAccounts = 0;
+        long numCreatedAccounts = 749790002;
         while (numCreatedAccounts < numAccounts) {
             long count = Math.min(numAccounts - numCreatedAccounts, 30_000L);
             var recordFile = recordFileBuilder

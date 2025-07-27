@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mirror-node-scaler
+  namespace: mainnet-citus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mirror-node-scaler
+  template:
+    metadata:
+      labels:
+        app: mirror-node-scaler
+    spec:
+      containers:
+        - name: mirror-node-scaler
+          image: debian:bullseye
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -eux
+
+              echo "Installing base packages and GPG..."
+              apt-get update && \
+              apt-get install -y curl ca-certificates gnupg lsb-release software-properties-common gpg
+
+              echo "Adding PostgreSQL APT repo..."
+              curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+                | gpg --dearmor -o /usr/share/keyrings/postgres.gpg
+              echo "deb [signed-by=/usr/share/keyrings/postgres.gpg] \
+                http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+                > /etc/apt/sources.list.d/pgdg.list
+
+              apt-get update && \
+              apt-get install -y postgresql-client-16
+
+              echo "psql version:"
+              psql --version
+
+              echo "Installing Git..."
+              apt-get install -y git tar unzip
+
+              echo "Downloading Java 21.0.7+6..."
+              curl -L -A "Mozilla/5.0" -o /tmp/jdk.tar.gz \
+                "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK21U-jdk_x64_linux_hotspot_21.0.7_6.tar.gz"
+
+              mkdir -p /opt/java && tar -xzf /tmp/jdk.tar.gz -C /opt/java
+              export JAVA_HOME=$(find /opt/java -maxdepth 1 -type d -name "jdk-*")
+              export PATH="$JAVA_HOME/bin:$PATH"
+
+              echo "JAVA_HOME=$JAVA_HOME"
+              java -version
+
+              echo "Cloning repo..."
+              git clone https://github.com/jnels124/hiero-mirror-node && \
+              cd hiero-mirror-node && git checkout scalability-135
+
+                echo "Running test..."
+              ./gradlew :importer:test --tests 'RecordFileParserPerformanceTest' --info
+
+              sleep infinity
+          resources:
+            limits:
+              memory: "8Gi"
+              cpu: "6000m"
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "v2"
+#            - name: PATH
+#              value: "/opt/java/jdk-21.0.7+7/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
