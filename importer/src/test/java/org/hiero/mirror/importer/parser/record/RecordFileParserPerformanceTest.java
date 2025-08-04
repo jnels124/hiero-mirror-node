@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.base.Function;
 import com.google.common.base.Stopwatch;
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.ByteString;
 import com.hederahashgraph.api.proto.java.AccountAmount;
 import com.hederahashgraph.api.proto.java.AccountID;
@@ -16,18 +15,14 @@ import com.hederahashgraph.api.proto.java.TokenID;
 import com.hederahashgraph.api.proto.java.TokenTransferList;
 import com.hederahashgraph.api.proto.java.TokenType;
 import com.hederahashgraph.api.proto.java.TransferList;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.hiero.mirror.common.config.CommonTestConfiguration;
-import org.hiero.mirror.common.domain.StreamType;
 import org.hiero.mirror.common.domain.entity.Entity;
-import org.hiero.mirror.importer.ImporterIntegrationTest;
 import org.hiero.mirror.importer.exception.InvalidDatasetException;
 import org.hiero.mirror.importer.parser.domain.RecordFileBuilder;
 import org.hiero.mirror.importer.parser.domain.RecordItemBuilder;
@@ -86,7 +81,7 @@ class RecordFileParserPerformanceTest {
     }
 
     private void createAccounts(AtomicLong nextEntityId) {
-        firstAccountId = nextEntityId.get();
+        firstAccountId = 112294165;
         var previous = recordFileRepository.findLatest().orElse(null);
         var properties = performanceProperties.getParser();
         final long numAccounts = properties.getNumAccounts();
@@ -115,7 +110,7 @@ class RecordFileParserPerformanceTest {
                     .record(r -> r.mergeTransferList(transferList));
         };
 
-        long numCreatedAccounts = 897000002;
+        long numCreatedAccounts = 1_000_000_000L;
         while (numCreatedAccounts < numAccounts) {
             long count = Math.min(numAccounts - numCreatedAccounts, 30_000L);
             var recordFile = recordFileBuilder

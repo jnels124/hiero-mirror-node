@@ -2,34 +2,17 @@
 
 package org.hiero.mirror.common.config;
 
-import com.google.common.collect.ImmutableMap;
-import com.hederahashgraph.api.proto.java.Common;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import jakarta.persistence.EntityManager;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.Strings;
 import org.hiero.mirror.common.CommonProperties;
 import org.hiero.mirror.common.domain.DomainBuilder;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.flyway.FlywayProperties;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.testcontainers.lifecycle.TestcontainersStartup;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.support.TransactionOperations;
-import org.testcontainers.containers.BindMode;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.OutputFrame;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class CommonTestConfiguration {

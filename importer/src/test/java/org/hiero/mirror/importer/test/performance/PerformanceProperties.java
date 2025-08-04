@@ -63,7 +63,7 @@ public class PerformanceProperties {
         private long numAccounts = 1_000_000_000L;
 
         @Min(100)
-        private long numNfts = 1_000L;
+        private long numNfts = 1_000_000_000L;
 
         @Min(10)
         private long numSerialsPerToken = 1_000_000L;
